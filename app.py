@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from youtube_transcript_api import YouTubeTranscriptApi
 from transformers import T5ForConditionalGeneration, T5Tokenizer 
 import json
-
+from urllib.parse import urlparse, parse_qs
 
 model = T5ForConditionalGeneration.from_pretrained("t5-base")
 model.eval()
@@ -42,22 +42,84 @@ def summarized_transcript(transcript):
     return summary
 
 
+
+def getvideoID(url): #test later, if doesn't work try smh splitting and using len to see which has 11 characters.
+    parsed = urlparse(url)
+    host = parsed.netloc
+    path = parsed.path
+
+    if "youtu.be" in host:
+        vid = path.split("/")
+
+    elif "youtube.com" in host:
+        qs = parse_qs(parsed.query)
+        
+        if "v" in qs:
+            vid = qs["v"][0]
+
+        else:
+            parts = path.split("/")
+            for p in parts:
+                if len(p) == 11:
+                    vid = p
+                    break
+            else:
+                return None
+    
+    else:
+        return None
+    
+
+    return vid
+                
+
+
+
+
 app = Flask(__name__)
 
-@app.route("/api/summarize?youtube_url=<url>")
-def YT(url):
-    YtvideoID = request.args.get("youtube_url")
-    transcript = get_transcript(YtvideoID)
-    summary = summarized_transcript(transcript)
+@app.route("/api/summarize")
+def YT():
+
+    ytURL = request.args.get("youtube_url")
+
+    if not ytURL:
+        return "Missing youtube video URL", 400
+
 
     try:
-        if not YtvideoID:
-            return 400
-    except:
+        videoID = getvideoID(ytURL)
+        if not videoID:
+            return "VideoID not available", 400
+        
+        transcript = get_transcript(videoID)
+        if not transcript:
+            return "Transcript unavailable", 400
+        
+        summary = summarized_transcript(transcript)
+        if not summary:
+            return "Summary failed", 500
+        
+        return summary, 200
+    
+    except ValueError:
+        return "Invalid input format", 400
+    
+    except ConnectionError:
+        return "Network issue", 500
+    
+if  __name__ == '__main__':
+    app.run(debug=True)
 
 
 
-    return summary, 200
+    
+
+    
+    
+   
+
+
 
 
   
