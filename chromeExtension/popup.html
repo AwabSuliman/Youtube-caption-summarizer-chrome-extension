@@ -1,15 +1,24 @@
-<html>
-
-<!--will add info such as pictures later on-->
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Transcript Summarizer</title>
   <link rel="stylesheet" href="popup.css">
 </head>
-
- <body>
-<h3>YouTube Transcript Summarizer</h3>
-     <img src="" id="">
-     <button id="summarybutton">Summarize Video</button>
-     <div id="status"></div>
-   <script src="popup.js"></script>
- </body>
-</html> 
+<body>
+  <main class="popup">
+    <p class="eyebrow">Chrome Extension</p>
+    <h1>YouTube Summarizer</h1>
+    <!-- <h1>YOO</h1> -->
+    <p class="subtitle" id="pageInfo">Open a YouTube video, then generate a quick summary.</p>
+    <button id="summarybutton" type="button">Summarize Video</button>
+    <p id="status" class="status" aria-live="polite">Checking current tab...</p>
+    <section class="summary-card">
+      <h2>Summary</h2>
+      <div id="summary" class="summary-text">No summary yet.</div>
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
